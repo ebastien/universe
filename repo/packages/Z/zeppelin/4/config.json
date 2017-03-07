@@ -8,11 +8,6 @@
                 "name": {
                     "type": "string",
                     "default": "zeppelin"
-                },
-                "zeppelin_java_opts": {
-                    "type": "string",
-                    "description": "Sets ZEPPELIN_JAVA_OPTS.  You can use this to set arbitrary spark configuration properties (e.g. spark.mesos.uris)",
-                    "default": "-Dspark.mesos.coarse=true -Dspark.mesos.executor.home=/opt/spark/dist"
                 }
             }
         },
@@ -35,6 +30,17 @@
                 "executor_memory": {
                     "type": "string",
                     "description": "Sets spark.executor.memory"
+                }
+            }
+        },
+        "hdfs": {
+            "description": "Spark-HDFS configuration properties",
+            "type": "object",
+            "properties": {
+                "config-url": {
+                    "type": "string",
+                    "description": "Base URL that serves HDFS config files (hdfs-site.xml, core-site.xml).",
+                    "default": "http://hdfs.marathon.mesos:9000/v1/connection"
                 }
             }
         }
