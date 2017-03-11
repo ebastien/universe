@@ -5,7 +5,23 @@
         "docker": {
             "image": "{{resource.assets.container.docker.zeppelin}}",
             "network": "HOST"
-        }
+        },
+        "volumes": [
+            {
+                "containerPath": "notebooks",
+                "persistent": {
+                    "size": 100
+                },
+                "mode": "RW"
+            }
+        ]
+    },
+    "residency": {
+        "taskLostBehavior": "WAIT_FOREVER"
+    },
+    "upgradeStrategy": {
+        "minimumHealthCapacity": 0,
+        "maximumOverCapacity": 0
     },
     "healthChecks": [{
         "protocol": "TCP",
@@ -21,17 +37,17 @@
         "DCOS_SERVICE_PORT_INDEX": "0"
     },
     "env": {
-        "SPARK_APP_NAME": "ZeppelinApp",
-        "SPARK_SUBMIT_OPTIONS": "--conf spark.cores.max={{spark.cores_max}} --conf spark.executor.memory={{spark.executor_memory}} --conf spark.mesos.coarse=true --conf spark.mesos.executor.docker.image={{#spark.executor_docker_image}}{{spark.executor_docker_image}}{{/spark.executor_docker_image}}{{^spark.executor_docker_image}}{{resource.assets.container.docker.spark}}{{/spark.executor_docker_image}} --conf spark.mesos.executor.home=/opt/spark/dist",
-        "ZEPPELIN_SPARK_USEHIVECONTEXT": "false"
+        "SPARK_APP_NAME": "Zeppelin",
+        "SPARK_SUBMIT_OPTIONS": "--executor-memory {{spark.executor_memory}} --total-executor-cores {{spark.cores_max}} --conf spark.mesos.coarse=true --conf spark.mesos.executor.docker.image={{#spark.executor_docker_image}}{{spark.executor_docker_image}}{{/spark.executor_docker_image}}{{^spark.executor_docker_image}}{{resource.assets.container.docker.spark}}{{/spark.executor_docker_image}} --conf spark.mesos.executor.home=/opt/spark/dist",
+        "ZEPPELIN_SPARK_USEHIVECONTEXT": "false",
+        "ZEPPELIN_NOTEBOOK_DIR": "/mnt/mesos/sandbox/notebooks"
     },
-    "cmd": "sed \"s#<value>8080</value>#<value>$PORT0</value>#\" < conf/zeppelin-site.xml.template > conf/zeppelin-site.xml && sed -i \"s#<value>-1</value>#<value>$PORT1</value>#\" conf/zeppelin-site.xml && export SPARK_HOME=$(find ${MESOS_SANDBOX}/ -type d -name 'spark-*') && cp -f ${MESOS_SANDBOX}/hdfs-site.xml ${MESOS_SANDBOX}/core-site.xml /etc/hadoop/ && bin/zeppelin.sh start",
-    "ports": [0, 0],
+    "cmd": "sed -i \"s#<value>8080</value>#<value>$PORT0</value>#\" conf/zeppelin-site.xml && export SPARK_HOME=$(find ${MESOS_SANDBOX}/ -type d -name 'spark-*') && cp -f ${MESOS_SANDBOX}/hdfs-site.xml ${MESOS_SANDBOX}/core-site.xml /etc/hadoop/ && bin/zeppelin.sh start",
     "cpus": 1,
     "mem": 2048.0,
     "fetch": [
-      {"uri": "{{#spark.uri}}{{spark.uri}}{{/spark.uri}}{{^spark.uri}}{{resource.assets.uris.spark}}{{/spark.uri}}", "cache": true},
-      {"uri": "{{hdfs.config-url}}/hdfs-site.xml"},
-      {"uri": "{{hdfs.config-url}}/core-site.xml"}
+        {"uri": "{{#spark.uri}}{{spark.uri}}{{/spark.uri}}{{^spark.uri}}{{resource.assets.uris.spark}}{{/spark.uri}}", "cache": true},
+        {"uri": "{{hdfs.config-url}}/hdfs-site.xml"},
+        {"uri": "{{hdfs.config-url}}/core-site.xml"}
     ]
 }

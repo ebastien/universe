@@ -7,7 +7,7 @@
   "assets": {
     "container": {
       "docker": {
-        "zeppelin": "ebastien/zeppelin:0.7.0",
+        "zeppelin": "ebastien/zeppelin:0.7.0-guest",
         "spark": "mesosphere/spark:1.0.7-2.1.0-hadoop-2.6"
       }
     },
